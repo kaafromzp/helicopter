@@ -16,16 +16,15 @@
   "license": "ISC",
   "dependencies": {
     "@tweenjs/tween.js": "^17.3.0",
-    "html-webpack-plugin": "^3.2.0",
-    "lodash": "^4.17.11",
-    "raw-loader": "^1.0.0"
+    "three": "^0.103.0"
   },
   "devDependencies": {
+    "html-webpack-plugin": "^3.2.0",
+    "lodash": "^4.17.11",
+    "raw-loader": "^1.0.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.16.0",
-    "git": "^0.1.5",
-    "three": "^0.103.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.3.1"
