@@ -1,10 +1,8 @@
 import {CubeTextureLoader} from 'three';
 class Loader {
-    constructor() {
-        this.a = 0;
-    }
+    constructor() {}
 
-    loadCubeTexture(path, filetype = '.jpg') {
+    static loadCubeTexture(path, filetype = '.jpg') {
         return new CubeTextureLoader().
             setPath(path).
             load([

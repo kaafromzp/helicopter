@@ -1,8 +1,11 @@
 /* eslint no-console: off */
+import './helpers/EffectComposer';
 import './helpers/GLTFLoader';
 import './helpers/OrbitControls';
 import * as THREE from 'three';
+import HorizontalBlurPass from './helpers/HorizontalBlur';
 import Scene from './Scene';
+import TWEEN from '@tweenjs/tween.js';
 import WEBGL from './helpers/WebGL';
 
 export default class Viewer3D {
@@ -12,6 +15,9 @@ export default class Viewer3D {
             this.init();
             this.animate();
         }
+
+        this.mouseDownX = window.innerWidth / 2;
+        this.mouseDeltaX = 0;
     }
 
     WEBGLCheck() {
@@ -45,10 +51,12 @@ export default class Viewer3D {
         // Soft white light
         scene.add(light);
 
-        let grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
-        grid.material.opacity = 0.2;
-        grid.material.transparent = true;
-        scene.add(grid);
+        /*
+         * Let grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
+         * grid.material.opacity = 0.2;
+         * grid.material.transparent = true;
+         *scene.add(grid);
+         */
 
         scene.setCubeTextureBackground('/assets/textures/background/');
         scene.loadGLTFModel('assets/models/helicopter/helicopter.gltf', this.manager);
@@ -89,7 +97,9 @@ export default class Viewer3D {
 
     initOrbitControls() {
         const controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        controls.enabled = false;
         controls.enableDamping = true;
+        controls.dampingFactor = 1000;
         controls.enablePan = false;
         controls.target = new THREE.Vector3(0, 0, 0);
         controls.update();
@@ -124,6 +134,15 @@ export default class Viewer3D {
          */
     }
 
+    initComposer() {
+        this.composer = new THREE.EffectComposer(this.renderer);
+        this.composer.viewer = this;
+        const rp = new THREE.RenderPass(this.scene, this.camera);
+        this.composer.addPass(rp);
+        this.hbp = new HorizontalBlurPass(this.scene, this.camera);
+        this.composer.addPass(this.hbp);
+    }
+
     init() {
         this.initManager();
 
@@ -135,7 +154,9 @@ export default class Viewer3D {
 
         this.initOrbitControls();
 
-        this.clock = new THREE.Clock();
+        this.clock = new THREE.Clock(true);
+
+        this.initComposer();
 
         window.addEventListener(
             'resize',
@@ -147,10 +168,37 @@ export default class Viewer3D {
             false
         );
         document.addEventListener(
+            'mousedown',
+            (event) => {
+                this.mouseDownX = event.clientX;
+                this.mouseDownY = event.clientY;
+                this.mouseDown = true;
+            },
+            false
+        );
+        document.addEventListener(
+            'mouseup',
+            (event) => {
+                this.mouseDown = false;
+                // This.mouseDeltaX = 0;
+                this.mouseDeltaY = 0;
+                let tween = new TWEEN.Tween(this.mouseDeltaX).to(0, 2000);
+                tween.start();
+            },
+            false
+        );
+        document.addEventListener(
             'mousemove',
-            () => {
-                this.mouseX = (event.clientX - window.innerWidth / 2) / 50;
-                this.mouseY = (event.clientY - window.innerHeight / 2) / 50;
+            (event) => {
+                if (this.mouseDown) {
+                    this.mouseDeltaX = Math.abs(event.clientX - this.mouseDownX);
+                    this.mouseDeltaY = Math.abs(event.clientY - this.mouseDownY);
+                } else {
+                    this.mouseDeltaX = 0;
+                    this.mouseDeltaY = 0;
+                }
+                this.mouseBiasX = event.clientX - window.innerWidth / 2;
+                this.mouseBiasY = event.clientY - window.innerHeight / 2;
             },
             false
         );
@@ -158,8 +206,14 @@ export default class Viewer3D {
 
     animate() {
         requestAnimationFrame(() => this.animate());
+        this.controls.target = new THREE.Vector3(
+            this.mouseBiasX / 5000 + this.mouseDeltaX / 1000,
+            this.mouseBiasY / 5000 + this.mouseDeltaY / 1000,
+            0
+        );
         this.controls.update();
         this.delta = this.clock.getDelta();
+        TWEEN.update(this.delta);
         if (this.mixer) {
             this.mixer.update(this.delta);
         }
@@ -167,6 +221,16 @@ export default class Viewer3D {
     }
 
     render() {
-        this.renderer.render(this.scene, this.camera);
+        this.hbp.horizontalBlurMaterial.uniforms.xBase.value = this.mouseDownX;
+        this.hbp.horizontalBlurMaterial.uniforms.xDelta.value = this.mouseDeltaX;
+        this.hbp.horizontalBlurMaterial.uniforms.t.value = 2000.0; // This.clock.getDelta();
+        this.hbp.horizontalBlurMaterial.uniforms.screenSize.value = new THREE.Vector2(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+        console.log(this.hbp.horizontalBlurMaterial.uniforms);
+        this.composer.render();
+        // This.renderer.render(this.scene, this.camera);
     }
 }

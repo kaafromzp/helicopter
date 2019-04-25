@@ -14,17 +14,14 @@ module.exports = {
         path: outPath
     },
     resolve: {
-        modules: [
-            path.resolve('./src'),
-            path.resolve('./src/classes'),
-            path.resolve('./src/classes/Effects'),
-            path.resolve('./src/classes/RenderPasses'),
-            path.resolve('./src/classes/PostRenderPasses'),
-            path.resolve('./node_modules')
-        ]
+        modules: [path.resolve('./src'), path.resolve('./node_modules')]
     },
     module: {
         rules: [
+            {
+                test: /\.worker\.js$/,
+                use: {loader: 'worker-loader'}
+            },
             {
                 test: /\.glsl/,
                 use: 'raw-loader'

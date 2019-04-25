@@ -7,7 +7,7 @@ class Scene extends THREE.Scene {
     }
 
     setCubeTextureBackground(path, filetype) {
-        this.background = new Loader().loadCubeTexture(path, filetype);
+        this.background = Loader.loadCubeTexture(path, filetype);
     }
 
     loadGLTFModel(path, manager) {
