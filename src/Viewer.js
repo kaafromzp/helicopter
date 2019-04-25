@@ -406,23 +406,21 @@ export default class Viewer3D {
 
         this.controls.target = new THREE.Vector3(
             this.cameralookat[this.slideNumber].x +
-                this.mouseBiasX / 2000 +
+                this.mouseBiasX / 5000 +
                 Math.abs(this.mouseDeltaX) / 1000,
             this.cameralookat[this.slideNumber].y +
-                this.mouseBiasY / 2000 +
+                this.mouseBiasY / 5000 +
                 this.mouseDeltaY / 1000,
             0
         );
 
-        /*
-         *This.scene.rotation.set(
-         * this.scene.rotation.x +
-         * (this.mouseBiasY / 20000 + this.mouseDeltaY / 10000) * 0.5,
-         * this.scene.rotation.y,
-         * this.scene.rotation.z +
-         * (this.mouseBiasX / 20000 + Math.abs(this.mouseDeltaX) / 10000) * 0.5
-         *);
-         */
+        this.camera.position.set(
+            this.camerapositions[this.slideNumber].x +
+                (this.mouseBiasY / 1000 + this.mouseDeltaY / 1000),
+            this.camerapositions[this.slideNumber].y,
+            this.camerapositions[this.slideNumber].z +
+                (this.mouseBiasX / 1000 + Math.abs(this.mouseDeltaX) / 1000)
+        );
 
         this.controls.update();
         this.delta = this.clock.getDelta();
