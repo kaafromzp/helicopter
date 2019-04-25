@@ -1,4 +1,4 @@
-import {CubeTextureLoader} from 'three';
+import {CubeTextureLoader, TextureLoader} from 'three';
 class Loader {
     constructor() {}
 
@@ -13,6 +13,10 @@ class Loader {
                 `pz${filetype}`,
                 `nz${filetype}`
             ]);
+    }
+
+    static load2DTexture(path) {
+        return new TextureLoader().load(path);
     }
 }
 export default Loader;

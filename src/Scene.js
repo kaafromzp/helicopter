@@ -10,6 +10,10 @@ class Scene extends THREE.Scene {
         this.background = Loader.loadCubeTexture(path, filetype);
     }
 
+    set2DTextureBackground(path) {
+        this.background = Loader.load2DTexture(path);
+    }
+
     loadGLTFModel(path, manager) {
         const loaderGLTF = new THREE.GLTFLoader(manager);
         loaderGLTF.load(path, (gltf) => {
